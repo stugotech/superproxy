@@ -1,5 +1,11 @@
 steps:
+- name: 'gcr.io/cloud-builders/glide'
+  dir: 'glide'
+  env: ['PROJECT_ROOT=github.com/stugotech/superproxy']
+  args: ['install']
+
 - name: 'gcr.io/cloud-builders/golang-project'
   args: ['github.com/stugotech/superproxy', '--tag=eu.gcr.io/$PROJECT_ID/superproxy:$TAG_NAME']
   env: ['PROJECT_ROOT=github.com/stugotech/superproxy']
-images: ['eu.gcr.io/$PROJECT_ID/superproxy']
+
+images: ['eu.gcr.io/$PROJECT_ID/superproxy:$TAG_NAME']
