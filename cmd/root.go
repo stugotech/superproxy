@@ -3,6 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strconv"
+
+	"io/ioutil"
 
 	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
@@ -17,6 +20,7 @@ import (
 const (
 	ConfigKey     = "config"
 	CPUProfileKey = "cpuprofile"
+	PIDFileKey    = "pidfile"
 )
 
 // flag defaults
@@ -38,6 +42,11 @@ var RootCmd = &cobra.Command{
 	Use:   "superproxy",
 	Short: "A simple reverse proxy for use with docker.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		pidFile := viper.GetString(PIDFileKey)
+		if pidFile != "" {
+			pid := []byte(strconv.FormatInt(int64(os.Getpid()), 10))
+			ioutil.WriteFile(pidFile, pid, 0644)
+		}
 		if viper.GetBool(CPUProfileKey) {
 			stopProfile = profile.Start(profile.ProfilePath(".")).Stop
 		}
@@ -65,6 +74,7 @@ func init() {
 	pf.StringVar(&cfgFile, ConfigKey, "", "Config file")
 
 	pf.Bool(CPUProfileKey, false, "Produce profiling output")
+	pf.String(PIDFileKey, "", "File to output PID to")
 
 	pf.String(secret.SealKey, "", "Key used to encrypt private keys")
 
