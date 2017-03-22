@@ -101,6 +101,7 @@ func initConfig() {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("$HOME") // adding home directory as first search path
 	viper.AddConfigPath("/etc/superproxy/")
+	viper.SetEnvPrefix("superproxy")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
