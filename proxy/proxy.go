@@ -183,9 +183,15 @@ func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
+	if host.ProxyTo == "" {
+		logger.Error("No proxy destination for host")
+		http.NotFound(res, req)
+		return
+	}
+	logger.Debug("proxy connection to host", golog.String("host", host.ProxyTo))
 	// rewrite and pass to proxy
 	req.URL.Scheme = "http"
-	req.URL.Host = host.Host
+	req.URL.Host = host.ProxyTo
 	p.reverse.ServeHTTP(res, req)
 }
 
