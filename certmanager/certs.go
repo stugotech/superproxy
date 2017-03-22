@@ -183,6 +183,10 @@ func (c *certManager) Authorize(domain string) error {
 	if err != nil {
 		return logger.Errore(err)
 	}
+	if challenge == nil {
+		// no authorisation required
+		return nil
+	}
 
 	ctx := context.Background()
 
