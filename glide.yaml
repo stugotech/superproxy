@@ -1,0 +1,23 @@
+package: github.com/stugotech/superproxy
+import:
+- package: github.com/docker/libkv
+  version: ^0.2.1
+  subpackages:
+  - store
+  - store/boltdb
+  - store/consul
+  - store/etcd
+  - store/zookeeper
+- package: github.com/pkg/profile
+  version: ^1.2.0
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: github.com/stugotech/goconfig
+- package: github.com/stugotech/golog
+- package: golang.org/x/crypto
+  subpackages:
+  - acme
+  - nacl/secretbox
+- package: golang.org/x/net
+  subpackages:
+  - publicsuffix
