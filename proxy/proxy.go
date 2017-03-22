@@ -129,7 +129,7 @@ func (p *proxy) acmeHandler(res http.ResponseWriter, req *http.Request) {
 		golog.String("scheme", req.URL.Scheme),
 		golog.String("host", req.Host),
 		golog.String("url", req.RequestURI),
-		golog.String("parsedURI", req.URL.String())
+		golog.String("parsedURI", req.URL.String()),
 	)
 
 	host, err := p.getHost(req.Host)
@@ -157,7 +157,7 @@ func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
 		golog.String("scheme", req.URL.Scheme),
 		golog.String("host", req.Host),
 		golog.String("url", req.RequestURI),
-		golog.String("parsedURI", req.URL.String())
+		golog.String("parsedURI", req.URL.String()),
 	)
 
 	host, err := p.getHost(req.Host)
