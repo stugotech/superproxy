@@ -24,7 +24,7 @@ var serveCmd = &cobra.Command{
 	Short: "Serves the proxy server on the specified interfaces",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		v := viper.GetViper()
-		v.Set("listen", []string{v.GetString(ListenHTTPKey), v.GetString(ListenHTTPSKey)})
+		v.Set("listen", []string{"http://" + v.GetString(ListenHTTPKey), "https://" + v.GetString(ListenHTTPSKey)})
 
 		p, err := proxy.NewProxy(v)
 		if err != nil {
