@@ -7,9 +7,9 @@ import (
 	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/stugotech/acme-agent.old/acme"
-	"github.com/stugotech/coyote/store"
+	"github.com/stugotech/superproxy/acmelib"
 	"github.com/stugotech/superproxy/certmanager"
+	"github.com/stugotech/superproxy/store"
 	"github.com/stugotech/superproxy/store/secret"
 )
 
@@ -74,7 +74,7 @@ func init() {
 	pf.String(store.StorePrefixKey, StorePrefixDefault, "Base path for values in KV store")
 
 	// ACME flags
-	pf.String(certmanager.AcmeDirectoryKey, acme.LetsEncryptLiveDirectory, "ACME directory")
+	pf.String(certmanager.AcmeDirectoryKey, acmelib.LetsEncryptLiveDirectory, "ACME directory")
 	pf.Bool(certmanager.AcceptTOSKey, false, "accept the terms of the ACME service")
 	pf.String(certmanager.EmailKey, "", "the contact email address of the registrant")
 

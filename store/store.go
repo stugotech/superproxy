@@ -54,6 +54,13 @@ const (
 	UpgradeSecurityStr   = "upgrade"
 )
 
+// Configuration keys
+const (
+	StoreKey       = "store"
+	StoreNodesKey  = "store-nodes"
+	StorePrefixKey = "store-prefix"
+)
+
 // ACMEAccount represents a user account on an ACME directory
 type ACMEAccount struct {
 	URI   string

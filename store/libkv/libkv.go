@@ -18,13 +18,6 @@ import (
 
 var logger = golog.NewPackageLogger()
 
-// Configuration keys
-const (
-	StoreKey       = "store"
-	StoreNodesKey  = "store-nodes"
-	StorePrefixKey = "store-prefix"
-)
-
 // libkvStore implements the Store interface using Docker's libkv package
 type libkvStore struct {
 	store  libkvst.Store
@@ -39,16 +32,16 @@ const (
 
 // NewStoreFromConfig creates a new store based on the provided config.
 func NewStoreFromConfig(conf goconfig.Config) (store.Store, error) {
-	store := conf.GetString(StoreKey)
-	storeNodes := conf.GetStringSlice(StoreNodesKey)
-	storePrefix := conf.GetString(StorePrefixKey)
+	storeName := conf.GetString(store.StoreKey)
+	storeNodes := conf.GetStringSlice(store.StoreNodesKey)
+	storePrefix := conf.GetString(store.StorePrefixKey)
 
-	if store == "" || len(storeNodes) == 0 || storePrefix == "" {
+	if storeName == "" || len(storeNodes) == 0 || storePrefix == "" {
 		return nil, logger.Error("must set store name, nodes and prefix")
 	}
 
 	return NewStore(
-		store,
+		storeName,
 		storeNodes,
 		storePrefix,
 	)
