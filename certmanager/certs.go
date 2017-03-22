@@ -318,11 +318,17 @@ func (c *certManager) addCertificate(domain string, sans []string, renew bool) (
 		return nil, logger.Errore(err)
 	}
 
+	// encrypt private key
+	key, err := c.secretbox.Seal(cert.PrivateKeyPEM())
+	if err != nil {
+		return nil, logger.Errore(err)
+	}
+
 	storeCert = &store.Certificate{
 		Subject:          domain,
 		AlternativeNames: sans,
 		CertificateChain: cert.CertificatesPEM(),
-		PrivateKey:       cert.PrivateKeyPEM(),
+		PrivateKey:       key,
 		Expires:          cert.Certificates[0].NotAfter,
 	}
 
