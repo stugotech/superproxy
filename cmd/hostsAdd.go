@@ -15,7 +15,8 @@ import (
 
 // config keys
 const (
-	SecurityModeKey = "security"
+	SecurityModeKey       = "security"
+	CertificateSubjectKey = "subject"
 )
 
 // hostsAddCmd represents the hostsAdd command
@@ -50,7 +51,7 @@ func addCert(cfg goconfig.Config, host string, backend string) error {
 			return err
 		}
 
-		cert, err := mgr.EnsureCertificate(host)
+		cert, err := mgr.EnsureCertificate(host, cfg.GetString(CertificateSubjectKey))
 		if err != nil {
 			return err
 		}
@@ -82,6 +83,8 @@ func init() {
 			store.UnsecureOnlyStr, store.SecureAndUnsecureStr,
 		),
 	)
+
+	fl.String(CertificateSubjectKey, "", "The subject of the certificate to use/create (if empty, the TLD+1 is used)")
 
 	viper.BindPFlags(fl)
 }

@@ -32,10 +32,7 @@ const (
 // CertificateManager deals with issuing and renewing certificates.
 type CertificateManager interface {
 	// EnsureCertificate creates a certificate for the specified domain if it doesn't already exist.
-	EnsureCertificate(domain string) (*store.Certificate, error)
-	// EnsureCertificates creates one or more certificates for the specified domains, grouped by
-	// registered domain, if they don't already exist.
-	EnsureCertificates(domains []string) ([]*store.Certificate, error)
+	EnsureCertificate(domain string, certificateSubject string) (*store.Certificate, error)
 	// RenewExpiringCertificates checks expiry dates on certificates and renews certificates that will
 	// expire before `before` has elapsed.
 	RenewExpiringCertificates(before time.Duration) ([]*store.Certificate, error)
@@ -106,40 +103,24 @@ func NewCertificateManager(cfg goconfig.Config) (CertificateManager, error) {
 }
 
 // EnsureCertificate creates a single certificate
-func (c *certManager) EnsureCertificate(domain string) (*store.Certificate, error) {
-	certs, err := c.EnsureCertificates([]string{domain})
-	if err != nil {
-		return nil, err
+func (c *certManager) EnsureCertificate(domain string, certificateSubject string) (*store.Certificate, error) {
+	var sans []string
+	var err error
+
+	if certificateSubject == "" {
+		certificateSubject, err = publicsuffix.EffectiveTLDPlusOne(domain)
+		if err != nil {
+			return nil, logger.Errorex("can't get public suffix for domain", err, golog.String("domain", domain))
+		}
 	}
-	if len(certs) != 1 {
-		panic("created a certificate for one domain, got more than one certificate :(")
+	if certificateSubject != domain {
+		sans = append(sans, domain)
 	}
-	return certs[0], nil
-}
-
-// EnsureCertificates creates a new certificate for the specified domains.
-func (c *certManager) EnsureCertificates(domains []string) ([]*store.Certificate, error) {
-	var certs []*store.Certificate
-
-	logger.Info("create new certificate",
-		golog.Strings("domains", domains),
-	)
-
-	groupedDomains, err := groupByRegisteredDomain(domains)
+	cert, err := c.addCertificate(certificateSubject, sans, false)
 	if err != nil {
 		return nil, logger.Errore(err)
 	}
-
-	// now create certificates
-	for domain, sans := range groupedDomains {
-		storeCert, err := c.addCertificate(domain, sans, false)
-		if err != nil {
-			return nil, logger.Errore(err)
-		}
-		certs = append(certs, storeCert)
-	}
-
-	return certs, nil
+	return cert, nil
 }
 
 // RenewExpiringCertificates checks expiry dates on certificates and renews certificates that will
@@ -351,29 +332,6 @@ func (c *certManager) addCertificate(domain string, sans []string, renew bool) (
 	}
 
 	return storeCert, nil
-}
-
-// groupByRegisteredDomain groups the given domains by the domain registered with a domain registrar.
-func groupByRegisteredDomain(domains []string) (map[string][]string, error) {
-	groupedDomains := make(map[string][]string)
-
-	for _, d := range domains {
-		reg, err := publicsuffix.EffectiveTLDPlusOne(d)
-		if err != nil {
-			return nil, logger.Errorex("can't get public suffix for domain", err, golog.String("domain", d))
-		}
-		// don't add the domain itself to the child list
-		if reg == d {
-			_, ok := groupedDomains[reg]
-			if !ok {
-				groupedDomains[reg] = []string{}
-			}
-		} else {
-			groupedDomains[reg] = append(groupedDomains[reg], d)
-		}
-	}
-
-	return groupedDomains, nil
 }
 
 // diffStrings returns the unique strings in all of the lists which aren't in the first
