@@ -228,8 +228,10 @@ func (c *certManager) BeginAuthorize(domain string) (*acmelib.HTTPAuthChallenge,
 		return nil, logger.Errore(err)
 	}
 
-	host.ACMEChallenge.ChallengePath = challenge.Path
-	host.ACMEChallenge.Response = challenge.Response
+	host.ACMEChallenge = store.ACMEChallenge{
+		ChallengePath: challenge.Path,
+		Response:      challenge.Response,
+	}
 
 	err = c.store.PutHost(host)
 	if err != nil {
