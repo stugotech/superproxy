@@ -1,4 +1,4 @@
 FROM scratch 
 
-ADD bin/superproxy-amd64-linux /superproxy 
+ADD bin/superproxy-linux-amd64 /superproxy 
 ENTRYPOINT /superproxy
