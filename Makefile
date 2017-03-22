@@ -21,4 +21,4 @@ clean:
 	rm -rf bin
 
 checkversion:
-	@test $(VERSION) || echo "no version tag" && false
+	@test $(VERSION) || (echo "no version tag" && false)
