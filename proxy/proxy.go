@@ -25,7 +25,7 @@ const (
 )
 
 const (
-	acmePathRoot = ".well-known/acme-challenge/"
+	acmePathRoot = "/.well-known/acme-challenge/"
 )
 
 // Proxy accepts incoming requests and proxies them to a configured back end.
@@ -126,10 +126,9 @@ func (p *proxy) getTLSConfig() *tls.Config {
 // acmeHandler handles ACME challenge requests.
 func (p *proxy) acmeHandler(res http.ResponseWriter, req *http.Request) {
 	logger.Debug("[acmeHandler] received request",
-		golog.String("scheme", req.URL.Scheme),
+		golog.Bool("secure", req.TLS != nil),
 		golog.String("host", req.Host),
 		golog.String("url", req.RequestURI),
-		golog.String("parsedURI", req.URL.String()),
 	)
 
 	host, err := p.getHost(req.Host)
@@ -153,11 +152,11 @@ func (p *proxy) acmeHandler(res http.ResponseWriter, req *http.Request) {
 
 // proxyHandler deals with forwardable requests.
 func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
+	secure := req.TLS != nil
 	logger.Debug("[proxyHandler] received request",
-		golog.String("scheme", req.URL.Scheme),
+		golog.Bool("secure", secure),
 		golog.String("host", req.Host),
 		golog.String("url", req.RequestURI),
-		golog.String("parsedURI", req.URL.String()),
 	)
 
 	host, err := p.getHost(req.Host)
@@ -166,25 +165,22 @@ func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
 		http.NotFound(res, req)
 		return
 	}
-	if req.URL.Scheme == "http" {
+	if !secure {
 		if host.Security == store.SecureOnly {
 			logger.Error("unsecure request for secure-only service", golog.String("host", host.Host))
 			http.NotFound(res, req)
 			return
 		}
 		if host.Security == store.UpgradeSecurity {
-			redirURI := "https://" + req.URL.Host + req.RequestURI
+			redirURI := "https://" + req.Host + req.RequestURI
 			http.Redirect(res, req, redirURI, http.StatusMovedPermanently)
 			return
 		}
-	} else if req.URL.Scheme == "https" {
+	} else {
 		if host.Security == store.UnsecureOnly {
 			logger.Error("secure request for unsecure-only service", golog.String("host", host.Host))
 			return
 		}
-	} else {
-		logger.Error("unknown scheme", golog.String("scheme", req.URL.Scheme))
-		return
 	}
 	// rewrite and pass to proxy
 	req.URL.Scheme = "http"
