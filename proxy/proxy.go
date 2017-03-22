@@ -174,6 +174,7 @@ func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
 		}
 		if host.Security == store.UpgradeSecurity {
 			redirURI := "https://" + req.Host + req.RequestURI
+			logger.Debug("upgrading security (redirect to HTTPS)", golog.String("uri", redirURI))
 			http.Redirect(res, req, redirURI, http.StatusMovedPermanently)
 			return
 		}
