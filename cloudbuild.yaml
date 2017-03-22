@@ -1,6 +1,5 @@
 steps:
 - name: 'gcr.io/cloud-builders/glide'
-  dir: 'glide'
   env: ['PROJECT_ROOT=github.com/stugotech/superproxy']
   args: ['install']
 
