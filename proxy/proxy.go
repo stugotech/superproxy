@@ -8,6 +8,8 @@ import (
 
 	"net/http/httputil"
 
+	"os"
+
 	"github.com/stugotech/goconfig"
 	"github.com/stugotech/golog"
 	"github.com/stugotech/superproxy/store"
@@ -99,6 +101,7 @@ func NewProxy(cfg goconfig.Config) (Proxy, error) {
 
 // ListenAndServe
 func (p *proxy) ListenAndServe() {
+	logger.Info("Listening on all configured interfaces", golog.Int("pid", os.Getpid()))
 	p.server.ListenAndServe()
 }
 
@@ -122,6 +125,13 @@ func (p *proxy) getTLSConfig() *tls.Config {
 
 // acmeHandler handles ACME challenge requests.
 func (p *proxy) acmeHandler(res http.ResponseWriter, req *http.Request) {
+	logger.Debug("[acmeHandler] received request",
+		golog.String("scheme", req.URL.Scheme),
+		golog.String("host", req.Host),
+		golog.String("url", req.RequestURI),
+		golog.String("parsedURI", req.URL.String())
+	)
+
 	host, err := p.getHost(req.Host)
 	if err != nil {
 		logger.Errore(err)
@@ -143,6 +153,13 @@ func (p *proxy) acmeHandler(res http.ResponseWriter, req *http.Request) {
 
 // proxyHandler deals with forwardable requests.
 func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
+	logger.Debug("[proxyHandler] received request",
+		golog.String("scheme", req.URL.Scheme),
+		golog.String("host", req.Host),
+		golog.String("url", req.RequestURI),
+		golog.String("parsedURI", req.URL.String())
+	)
+
 	host, err := p.getHost(req.Host)
 	if err != nil {
 		logger.Errore(err)
