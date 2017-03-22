@@ -11,6 +11,7 @@ import (
 	"github.com/stugotech/superproxy/acmelib"
 	"github.com/stugotech/superproxy/cryptex"
 	"github.com/stugotech/superproxy/store"
+	"github.com/stugotech/superproxy/store/libkv"
 	"github.com/stugotech/superproxy/store/secret"
 )
 
@@ -66,6 +67,12 @@ func NewCertificateManager(cfg goconfig.Config) (CertificateManager, error) {
 	// set up encryption
 	var err error
 	c.secretbox, err = secret.NewBoxFromConfig(cfg)
+	if err != nil {
+		return nil, logger.Errore(err)
+	}
+
+	// set up store
+	c.store, err = libkv.NewStoreFromConfig(cfg)
 	if err != nil {
 		return nil, logger.Errore(err)
 	}
