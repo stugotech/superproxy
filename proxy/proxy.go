@@ -147,6 +147,7 @@ func (p *proxy) acmeHandler(res http.ResponseWriter, req *http.Request) {
 		http.NotFound(res, req)
 		return
 	}
+	logger.Debug("replying to challenge", golog.String("response", host.ACMEChallenge.Response))
 	res.Write([]byte(host.ACMEChallenge.Response))
 }
 
