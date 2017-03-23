@@ -133,6 +133,22 @@ func (s *libkvStore) PutHost(host *store.Host) error {
 	return s.put(host, hostsPath, host.Host)
 }
 
+// RemoveHost
+func (s *libkvStore) RemoveHost(host string) error {
+	if host == "" {
+		return logger.Error("must specify host name")
+	}
+	return s.remove(hostsPath, host)
+}
+
+// RemoveCertificate
+func (s *libkvStore) RemoveCertificate(subject string) error {
+	if subject == "" {
+		return logger.Error("must specify subject")
+	}
+	return s.remove(certificatesPath, subject)
+}
+
 // GetCertificates
 func (s *libkvStore) GetCertificates() ([]*store.Certificate, error) {
 	key := s.path(certificatesPath)
@@ -298,6 +314,18 @@ func (s *libkvStore) put(value interface{}, path ...string) error {
 	err = s.store.Put(key, buf, nil)
 	if err != nil {
 		return logger.Errorex("error writing value to store", err)
+	}
+
+	return nil
+}
+
+// remove removes a value from the store.
+func (s *libkvStore) remove(path ...string) error {
+	key := s.path(path...)
+
+	err := s.store.Delete(key)
+	if err != nil {
+		return logger.Errorex("error deleting value from store", err)
 	}
 
 	return nil

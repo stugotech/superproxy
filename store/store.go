@@ -24,6 +24,9 @@ type Store interface {
 	PutCertificate(cert *Certificate) error
 	PutHost(host *Host) error
 
+	RemoveHost(host string) error
+	RemoveCertificate(subject string) error
+
 	GetCertificates() ([]*Certificate, error)
 	GetHosts() ([]*Host, error)
 
