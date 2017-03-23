@@ -3,8 +3,11 @@ steps:
   env: ['PROJECT_ROOT=github.com/stugotech/superproxy']
   args: ['install']
 
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '--tag=alpine-cacerts', '-f', 'Dockerfile.cacerts.alpine', '.']
+
 - name: 'gcr.io/cloud-builders/golang-project'
-  args: ['github.com/stugotech/superproxy', '--tag=eu.gcr.io/$PROJECT_ID/superproxy:$TAG_NAME']
+  args: ['github.com/stugotech/superproxy', '--base-image=alpine-cacerts', '--tag=eu.gcr.io/$PROJECT_ID/superproxy:$TAG_NAME']
   env: ['PROJECT_ROOT=github.com/stugotech/superproxy']
 
 images: ['eu.gcr.io/$PROJECT_ID/superproxy:$TAG_NAME']
