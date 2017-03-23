@@ -10,11 +10,14 @@ import (
 	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/stugotech/golog"
 	"github.com/stugotech/superproxy/acmelib"
 	"github.com/stugotech/superproxy/certmanager"
 	"github.com/stugotech/superproxy/store"
 	"github.com/stugotech/superproxy/store/secret"
 )
+
+var logger = golog.NewPackageLogger()
 
 // Command line flags
 const (
@@ -106,6 +109,6 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		logger.Info("Using config file", golog.String("file", viper.ConfigFileUsed()))
 	}
 }
