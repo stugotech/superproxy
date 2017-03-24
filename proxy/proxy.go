@@ -160,6 +160,13 @@ func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
 		golog.String("url", req.RequestURI),
 	)
 
+	var proto string
+	if secure {
+		proto = "https"
+	} else {
+		proto = "http"
+	}
+
 	host, err := p.getHost(req.Host)
 	if err != nil {
 		logger.Errore(err)
@@ -189,8 +196,13 @@ func (p *proxy) proxyHandler(res http.ResponseWriter, req *http.Request) {
 		http.NotFound(res, req)
 		return
 	}
+
 	logger.Debug("proxy connection to host", golog.String("host", host.ProxyTo))
+
 	// rewrite and pass to proxy
+	if req.Header.Get("X-Forwarded-Proto") == "" {
+		req.Header.Add("X-Forwarded-Proto", proto)
+	}
 	req.URL.Scheme = "http"
 	req.URL.Host = host.ProxyTo
 	p.reverse.ServeHTTP(res, req)
